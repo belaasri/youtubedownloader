@@ -1,21 +1,36 @@
-import React, { useState } from 'react';
+// components/VideoDownloader.tsx
+import React from 'react';
 
-const VideoDownloader = () => {
-  // Replace this URL with the actual URL of your video
-  const [videoUrl] = useState('https://example.com/path-to-your-video.mp4');
+interface VideoDownloaderProps {
+  videoId: string;
+}
+
+
+const VideoDownloader: React.FC<VideoDownloaderProps> = ({ videoId }) => {
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(`/api/download?videoId=${videoId}`); // Call your API route
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'video.mp4';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Download failed:', response.status, await response.text()); // Log the error details
+      }
+    } catch (error) {
+      console.error('Error during download:', error);
+    }
+  };
 
   return (
-    <div className="video-container">
-      <h2>Mastery Summarized in 8 Minutes by Robert Greene</h2>
-      <video controls width="100%">
-        <source src={videoUrl} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <a href={videoUrl} download="mastery-summary.mp4">
-        <button className="download-button" style={{ marginTop: '10px' }}>
-          Download Video
-        </button>
-      </a>
+    <div>
+      {/* ... other JSX ... */}
+      <button onClick={handleDownload}>Download Video</button>
     </div>
   );
 };
